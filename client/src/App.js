@@ -38,8 +38,13 @@ const App = () => {
 
   return (
     <div>
-      {/* Existing code for user list */}
-
+      <h1>User List</h1>
+      <button onClick={handleRefresh}>Refresh</button>
+      <ul>
+        {users.map(user => (
+          <li key={user.id}>{user.name}</li>
+        ))}
+      </ul>
       <div>
         <h2>Fitness Tracker</h2>
         <p>Steps Today: {steps}</p>
