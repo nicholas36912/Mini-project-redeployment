@@ -1,112 +1,49 @@
-const http = require('http');
-const fs = require('fs').promises;
-const path = require('path');
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser'); 
 
-const dbPath = path.join(__dirname, 'users.json');
+const app = express();
+app.use(bodyParser.json()); 
 
-const server = http.createServer(async (req, res) => {
-    
-    if (req.method === 'GET' && req.url.startsWith('/api/v1/users')) {
-        try {
-            // Handle version 1 of the API using async/await
-            const response = await handleAPIv1(req);
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(response));
-        } catch (error) {
-            console.error('Error:', error);
-            res.writeHead(500, { 'Content-Type': 'text/plain' });
-            res.end('Internal Server Error');
-        }
-    } else if (req.method === 'GET' && req.url.startsWith('/api/v2/users')) {
-        try {
-            // Handle version 2 of the API using async/await
-            const response = await handleAPIv2(req);
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(response));
-        } catch (error) {
-            console.error('Error:', error);
-            res.writeHead(500, { 'Content-Type': 'text/plain' });
-            res.end('Internal Server Error');
-        }
-    } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
-    }
+// MongoDB connection
+mongoose.connect('mongodb://localhost:27017/stepTracker', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+  console.log('Connected to MongoDB');
 });
 
-// function to handle version 1 of the API with promises
-async function handleAPIv1(req) {
-    if (req.method === 'GET' && req.url === '/api/v1/users') {
-        const urlParams = new URLSearchParams(req.url.split('?')[1]);
-        const nameFilter = urlParams.get('name');
-        const sortBy = urlParams.get('sort');
+// MongoDB Schema and Model
+const stepSchema = new mongoose.Schema({
+  steps: Number
+});
 
-        try {
-            const data = await fs.readFile(dbPath, 'utf8');
-            let users = JSON.parse(data);
+const Step = mongoose.model('Step', stepSchema);
 
-            if (nameFilter) {
-                users = users.filter(user => user.name.toLowerCase().includes(nameFilter.toLowerCase()));
-            }
+// API Endpoints
+app.get('/api/steps', async (req, res) => {
+  try {
+    const steps = await Step.find();
+    res.json(steps);
+  } catch (error) {
+    console.error('Error fetching steps:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
-            if (sortBy === 'id') {
-                users.sort((a, b) => a.id - b.id);
-            } else if (sortBy === 'name') {
-                users.sort((a, b) => a.name.localeCompare(b.name));
-            }
+app.post('/api/steps', async (req, res) => {
+  try {
+    const newStep = new Step({ steps: req.body.steps });
+    await newStep.save();
+    res.json(newStep);
+  } catch (error) {
+    console.error('Error adding step:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
-            const page = parseInt(urlParams.get('page')) || 1;
-            const limit = parseInt(urlParams.get('limit')) || 10;
-            const startIndex = (page - 1) * limit;
-            const endIndex = page * limit;
-            const usersOnPage = users.slice(startIndex, endIndex);
-
-            return usersOnPage;
-        } catch (error) {
-            throw error;
-        }
-    } else {
-        throw new Error('Not Found');
-    }
-}
-
-// function to handle version 2 of the API with promises
-async function handleAPIv2(req) {
-    if (req.method === 'GET' && req.url === '/api/v2/users') {
-        const urlParams = new URLSearchParams(req.url.split('?')[1]);
-        const nameFilter = urlParams.get('name');
-        const sortBy = urlParams.get('sort');
-
-        try {
-            const data = await fs.readFile(dbPath, 'utf8');
-            let users = JSON.parse(data);
-
-            if (nameFilter) {
-                users = users.filter(user => user.name.toLowerCase().includes(nameFilter.toLowerCase()));
-            }
-
-            if (sortBy === 'id') {
-                users.sort((a, b) => a.id - b.id);
-            } else if (sortBy === 'name') {
-                users.sort((a, b) => a.name.localeCompare(b.name));
-            }
-
-            const page = parseInt(urlParams.get('page')) || 1;
-            const limit = parseInt(urlParams.get('limit')) || 10;
-            const startIndex = (page - 1) * limit;
-            const endIndex = page * limit;
-            const usersOnPage = users.slice(startIndex, endIndex);
-
-            return usersOnPage;
-        } catch (error) {
-            throw error;
-        }
-    } else {
-        throw new Error('Not Found');
-    }
-}
-
-// Start the server on port 8000
-server.listen(8000, () => {
-    console.log('Server running on <http://localhost:8000/>');
+// Server setup
+app.listen(3000, () => {
+  console.log('Server running on <http://localhost:3000/>');
 });
