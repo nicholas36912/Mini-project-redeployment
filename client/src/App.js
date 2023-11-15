@@ -6,22 +6,24 @@ const App = () => {
   const [steps, setSteps] = useState(0);
 
   useEffect(() => {
-    axios.get('/api/v1/users')
+    // Fetch users when the component mounts
+    axios.get('/api/users')
       .then(response => {
         setUsers(response.data);
       })
       .catch(error => {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching users:', error);
       });
   }, []);
 
   const handleRefresh = () => {
-    axios.get('/api/v1.users')
+    // Refresh the list of users
+    axios.get('/api/users')
       .then(response => {
         setUsers(response.data);
       })
       .catch(error => {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching users:', error);
       });
   };
 
@@ -56,3 +58,4 @@ const App = () => {
 };
 
 export default App;
+
