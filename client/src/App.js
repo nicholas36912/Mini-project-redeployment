@@ -44,7 +44,7 @@ const App = () => {
         {users.map(user => (
           <li key={user.id}>{user.name}</li>
         ))}
-      </ul>
+      </ul> 
       <div>
         <h2>Fitness Tracker</h2>
         <p>Steps Today: {steps}</p>
