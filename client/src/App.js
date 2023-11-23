@@ -6,30 +6,31 @@ const App = () => {
   const [steps, setSteps] = useState(0);
 
   useEffect(() => {
-    axios.get('/api/v1/users')
+    // Fetch users when the component mounts
+    axios.get('/api/users')
       .then(response => {
         setUsers(response.data);
       })
       .catch(error => {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching users:', error);
       });
   }, []);
 
   const handleRefresh = () => {
-    axios.get('/api/v1.users')
+    // Refresh the list of users
+    axios.get('/api/users')
       .then(response => {
         setUsers(response.data);
       })
       .catch(error => {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching users:', error);
       });
   };
 
   const incrementSteps = () => {
-    // Update the endpoint to add a new step to MongoDB
-    axios.post('/api/steps', { steps: steps + 1 })
+    axios.post('http://localhost:8000/api/steps', { steps: steps + 1 })
       .then(response => {
-        setSteps(response.data.steps);
+        setSteps(response.data.map(step => step.steps).reduce((a, b) => a + b, 0));
       })
       .catch(error => {
         console.error('Error adding step:', error);
@@ -44,10 +45,9 @@ const App = () => {
         {users.map(user => (
           <li key={user.id}>{user.name}</li>
         ))}
-      </ul>
+      </ul> 
       <div>
         <h2>Fitness Tracker</h2>
-        <p>Steps Today: {steps}</p>
         <button onClick={incrementSteps}>Add Step</button>
         {steps >= 10 && <p>You've reached your step goal!</p>}
       </div>
@@ -56,3 +56,4 @@ const App = () => {
 };
 
 export default App;
+

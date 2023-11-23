@@ -32,6 +32,16 @@ app.get('/api/steps', async (req, res) => {
   }
 });
 
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.post('/api/steps', async (req, res) => {
   try {
     const newStep = new Step({ steps: req.body.steps });
@@ -43,7 +53,19 @@ app.post('/api/steps', async (req, res) => {
   }
 });
 
+
+app.post('/api/users', async (req, res) => {
+  try {
+    const newUser = new User(req.body); // Assuming req.body contains the user data
+    await newUser.save();
+    res.json(newUser);
+  } catch (error) {
+    console.error('Error adding user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Server setup
-app.listen(3000, () => {
-  console.log('Server running on <http://localhost:3000/>');
+app.listen(8000, () => {
+  console.log('Server running on <http://localhost:8000/>');
 });
