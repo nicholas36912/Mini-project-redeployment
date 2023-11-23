@@ -15,3 +15,5 @@ commit - 5 implemented web app, class and functional component to call api user 
 Commit -6 implemented fitness tracker using react state and hooks 
 
 Commit -7 Integrated MOngoDB and fixed stepTracker.js file
+
+--RUN mongodb server with mongosh, run server backend with then run app client.
