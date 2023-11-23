@@ -53,6 +53,7 @@ app.post('/api/steps', async (req, res) => {
   }
 });
 
+
 app.post('/api/users', async (req, res) => {
   try {
     const newUser = new User(req.body); // Assuming req.body contains the user data
