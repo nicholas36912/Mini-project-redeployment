@@ -37,7 +37,7 @@ const App = () => {
       .catch(error => {
         console.error('Error fetching goals:', error);
       });
-  }, []); // Empty dependency array ensures the effect runs only once on mount
+  }, []); 
 
   const incrementSteps = () => {
     axios.post('/api/steps', { steps: steps + 1 })
@@ -98,12 +98,10 @@ const App = () => {
         <button onClick={incrementSteps}>Add Step</button>
         {steps >= 10 && <p>You've reached your step goal!</p>}
 
-        {/* Buttons to fetch and reveal data */}
         <button onClick={handleFetchWorkouts}>Fetch Workouts</button>
         <button onClick={handleFetchNutritions}>Fetch Nutritions</button>
         <button onClick={handleFetchGoals}>Fetch Goals</button>
 
-        {/* Display data based on the selected category */}
         {showWorkouts && (
           <div>
             <h3>Workouts</h3>
