@@ -12,7 +12,7 @@ const App = () => {
 
   useEffect(() => {
     // Fetch workouts when the component mounts
-    axios.get('/workouts')
+    axios.get('http://localhost:3000/workouts')
       .then(response => {
         setWorkouts(response.data);
       })
@@ -51,7 +51,7 @@ const App = () => {
 
   const handleFetchWorkouts = () => {
     // Fetch workouts when the button is clicked
-    axios.get('/workouts')
+    axios.get('http://localhost:3000/workouts')
       .then(response => {
         setWorkouts(response.data);
         setShowWorkouts(true);
@@ -63,9 +63,25 @@ const App = () => {
       });
   };
 
+  const handlePostWorkout = () => {
+    const newWorkoutData = {
+      type: 'Running',
+      duration: 30,
+      calories_burned: 300
+    };
+
+    axios.post('http://localhost:3000/workouts', newWorkoutData)
+      .then(response => {
+        console.log('New Workout Entry:', response.data);
+        // You can update the state or perform other actions if needed
+      })
+      .catch(error => {
+        console.error('Error adding workout entry:', error);
+      });
+  };
   const handleFetchNutritions = () => {
     // Fetch nutritions when the button is clicked
-    axios.get('/nutritions')
+    axios.get('http://localhost:3000/nutritions')
       .then(response => {
         setNutritions(response.data);
         setShowWorkouts(false);
@@ -97,7 +113,7 @@ const App = () => {
         <h2>Fitness Tracker</h2>
         <button onClick={incrementSteps}>Add Step</button>
         {steps >= 10 && <p>You've reached your step goal!</p>}
-
+        <button onClick={handlePostWorkout}>Post Workout</button>
         <button onClick={handleFetchWorkouts}>Fetch Workouts</button>
         <button onClick={handleFetchNutritions}>Fetch Nutritions</button>
         <button onClick={handleFetchGoals}>Fetch Goals</button>

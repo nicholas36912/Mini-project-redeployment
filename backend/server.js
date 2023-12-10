@@ -6,8 +6,8 @@ const app = express();
 app.use(express.json());
 
 // MongoDB and Mongoose setup
-mongoose.connect('mongodb://localhost:27017/fitnessTracker', { useNewUrlParser: true, useUnifiedTopology: true });
-
+mongoose.connect('mongodb+srv://nicholasscinocco2:N36a912S@cluster0.aimnqq7.mongodb.net/', { useNewUrlParser: true, useUnifiedTopology: true });
+//mongodb+srv://nicholasscinocco2:<password>@cluster0.aimnqq7.mongodb.net/
 // Mongoose Schemas
 const workoutSchema = new mongoose.Schema({
   type: String,
@@ -37,7 +37,7 @@ app.get('/workouts', async (req, res) => {
   res.json(workouts);
 });
 
-app.post('/workouts', [
+app.post('http://localhost:3000/workouts', [
   body('type').isLength({ min: 1 }),
   body('duration').isNumeric(),
   body('calories_burned').isNumeric()
