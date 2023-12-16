@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import WorkoutsComponent from './WorkoutsComponent'; // Import your Workout component
-import NutritionsComponent from './NutritionsComponent'; // Import your Nutrition component
-import GoalsComponent from './GoalsComponent'; // Import your Goal component
+import WorkoutsComponent from './WorkoutsComponent'; 
+import NutritionsComponent from './NutritionsComponent'; 
+import GoalsComponent from './GoalsComponent'; 
 
 const App = () => {
   const [user, setUser] = useState(null);
