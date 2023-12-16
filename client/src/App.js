@@ -1,59 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import WorkoutsComponent from './WorkoutsComponent'; // Import your Workout component
+import NutritionsComponent from './NutritionsComponent'; // Import your Nutrition component
+import GoalsComponent from './GoalsComponent'; // Import your Goal component
 
 const App = () => {
-  const [steps, setSteps] = useState(0);
-  const [workouts, setWorkouts] = useState([]);
-  const [nutritions, setNutritions] = useState([]);
-  const [goals, setGoals] = useState([]);
+  const [user, setUser] = useState(null);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showWorkouts, setShowWorkouts] = useState(false);
   const [showNutritions, setShowNutritions] = useState(false);
   const [showGoals, setShowGoals] = useState(false);
 
   useEffect(() => {
-    // Fetch workouts when the component mounts
-    axios.get('http://localhost:3000/workouts')
+    // Check if the user is logged in
+    axios.get('/user')
       .then(response => {
-        setWorkouts(response.data);
+        setUser(response.data);
       })
       .catch(error => {
-        console.error('Error fetching workouts:', error);
+        console.error('Error fetching user:', error);
       });
+  }, []);
 
-    // Fetch nutritions when the component mounts
-    axios.get('/nutritions')
+  const handleRegister = () => {
+    axios.post('/register', { username, email, password })
       .then(response => {
-        setNutritions(response.data);
+        console.log('Registration successful:', response.data);
       })
       .catch(error => {
-        console.error('Error fetching nutritions:', error);
+        console.error('Error registering user:', error.response.data);
       });
+  };
 
-    // Fetch goals when the component mounts
-    axios.get('/goals')
+  const handleLogin = () => {
+    axios.post('/login', { username, password })
       .then(response => {
-        setGoals(response.data);
+        console.log('Login successful:', response.data);
+        setUser(response.data);
       })
       .catch(error => {
-        console.error('Error fetching goals:', error);
+        console.error('Error logging in:', error.response.data);
       });
-  }, []); 
+  };
 
-  const incrementSteps = () => {
-    axios.post('/api/steps', { steps: steps + 1 })
+  const handleLogout = () => {
+    axios.get('/logout')
       .then(response => {
-        setSteps(response.data.map(step => step.steps).reduce((a, b) => a + b, 0));
+        console.log('Logout successful:', response.data);
+        setUser(null);
       })
       .catch(error => {
-        console.error('Error adding step:', error);
+        console.error('Error logging out:', error.response.data);
       });
   };
 
   const handleFetchWorkouts = () => {
-    // Fetch workouts when the button is clicked
     axios.get('http://localhost:3000/workouts')
       .then(response => {
-        setWorkouts(response.data);
+        // Handle fetched data as needed
         setShowWorkouts(true);
         setShowNutritions(false);
         setShowGoals(false);
@@ -63,94 +69,29 @@ const App = () => {
       });
   };
 
-  const handlePostWorkout = () => {
-    const newWorkoutData = {
-      type: 'Running',
-      duration: 30,
-      calories_burned: 300
-    };
-
-    axios.post('http://localhost:3000/workouts', newWorkoutData)
-      .then(response => {
-        console.log('New Workout Entry:', response.data);
-        // You can update the state or perform other actions if needed
-      })
-      .catch(error => {
-        console.error('Error adding workout entry:', error);
-      });
-  };
-  const handleFetchNutritions = () => {
-    // Fetch nutritions when the button is clicked
-    axios.get('http://localhost:3000/nutritions')
-      .then(response => {
-        setNutritions(response.data);
-        setShowWorkouts(false);
-        setShowNutritions(true);
-        setShowGoals(false);
-      })
-      .catch(error => {
-        console.error('Error fetching nutritions:', error);
-      });
-  };
-
-  const handleFetchGoals = () => {
-    // Fetch goals when the button is clicked
-    axios.get('/goals')
-      .then(response => {
-        setGoals(response.data);
-        setShowWorkouts(false);
-        setShowNutritions(false);
-        setShowGoals(true);
-      })
-      .catch(error => {
-        console.error('Error fetching goals:', error);
-      });
-  };
-
   return (
     <div>
-      <div>
-        <h2>Fitness Tracker</h2>
-        <button onClick={incrementSteps}>Add Step</button>
-        {steps >= 10 && <p>You've reached your step goal!</p>}
-        <button onClick={handlePostWorkout}>Post Workout</button>
-        <button onClick={handleFetchWorkouts}>Fetch Workouts</button>
-        <button onClick={handleFetchNutritions}>Fetch Nutritions</button>
-        <button onClick={handleFetchGoals}>Fetch Goals</button>
+      {user ? (
+        <div>
+          <p>Welcome, {user.username}!</p>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      ) : (
+        <div>
+          <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button onClick={handleRegister}>Register</button>
+          <button onClick={handleLogin}>Login</button>
+        </div>
+      )}
 
-        {showWorkouts && (
-          <div>
-            <h3>Workouts</h3>
-            <ul>
-              {workouts.map(workout => (
-                <li key={workout._id}>{workout.type} - Duration: {workout.duration} minutes</li>
-              ))}
-            </ul>
-          </div>
-        )}
+      <button onClick={handleFetchWorkouts}>Fetch Workouts</button>
 
-        {showNutritions && (
-          <div>
-            <h3>Nutritions</h3>
-            <ul>
-              {nutritions.map(nutrition => (
-                <li key={nutrition._id}>{nutrition.meal} - Calories: {nutrition.calories}, Protein: {nutrition.protein}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {showGoals && (
-          <div>
-            <h3>Goals</h3>
-            <ul>
-              {goals.map(goal => (
-                <li key={goal._id}>{goal.goal_type} - Target: {goal.target}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+      {/* Render workout, nutrition, and goal components based on state */}
+      {showWorkouts && <WorkoutsComponent />}
+      {showNutritions && <NutritionsComponent />}
+      {showGoals && <GoalsComponent />}
     </div>
   );
 };
